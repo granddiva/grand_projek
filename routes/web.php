@@ -6,8 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WargaController;
 use App\Http\Controllers\LayananPosyanduController;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/layanan', function () {
+    return view('Dashboard');
 });
 
 Route::get('/', [LayananPosyanduController::class, 'index']);
