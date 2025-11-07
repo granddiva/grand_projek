@@ -120,4 +120,37 @@
     .measurement-box h3 {
         font-size: 2rem;
     }
+
+    /* SOLUSI FAB WHATSAPP (Tombol yang Hilang) */
+    .fab-whatsapp {
+        position: fixed;
+        bottom: 20px;
+        /* Jarak dari bawah */
+        right: 20px;
+        /* Jarak dari kanan */
+        width: 50px;
+        /* Ukuran tombol */
+        height: 50px;
+        background-color: #25D366;
+        /* Warna hijau WhatsApp */
+        color: white;
+        border-radius: 50%;
+        /* Bentuk lingkaran */
+        text-align: center;
+        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        display: flex;
+        /* Untuk memusatkan ikon */
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        /* Ukuran ikon */
+        z-index: 1000;
+        /* Pastikan tombol di atas elemen lain */
+        transition: transform 0.3s ease;
+    }
+
+    .fab-whatsapp:hover {
+        transform: scale(1.1);
+        /* Efek saat disentuh kursor */
+    }
 </style>
