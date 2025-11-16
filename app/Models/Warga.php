@@ -16,4 +16,5 @@ class Warga extends Model
         'alamat',
         'no_hp',
     ];
+    protected $primaryKey = 'warga_id';
 }

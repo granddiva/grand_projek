@@ -20,4 +20,8 @@ class LayananPosyandu extends Model
         'vitamin',
         'konseling',
     ];
+    public function warga()
+    {
+        return $this->belongsTo(Warga::class, 'warga_id');
+    }
 }

@@ -1,9 +1,12 @@
 <?php
 
+use App\Models\KaderPosyandu;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WargaController;
+use App\Http\Controllers\PosyanduController;
+use App\Http\Controllers\KaderPosyanduController;
 use App\Http\Controllers\LayananPosyanduController;
 
 Route::get('/layanan', function () {
@@ -20,3 +23,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/about', function () {
     return view('guest/about.about');
 })->name('about');
+
+Route::resource('posyandu', PosyanduController::class);
+Route::resource('kaderposyandu', KaderPosyanduController::class);
