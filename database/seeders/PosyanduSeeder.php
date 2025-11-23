@@ -4,32 +4,28 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Faker\Factory as Faker;
 
 class PosyanduSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        DB::table('posyandu')->insert([
-            [
-                'posyandu_id' => 1,
-                'nama' => 'Posyandu Mawar',
-                'alamat' => 'Jl. Kenanga No. 10',
-                'rt' => '02',
-                'rw' => '04',
-                'kontak' => '08123456789'
-            ],
-            [
-                'posyandu_id' => 2,
-                'nama' => 'Posyandu Melati',
-                'alamat' => 'Dusun Cempaka',
-                'rt' => '03',
-                'rw' => '02',
-                'kontak' => '08129876543'
-            ],
-        ]);
+        $faker = Faker::create('id_ID');
+
+        $data = [];
+        for ($i = 1; $i <= 100; $i++) {
+            $data[] = [
+                'nama' => 'Posyandu ' . $faker->city(),
+                'alamat' => $faker->address(),
+                'rt' => str_pad((string)rand(1,20), 2, '0', STR_PAD_LEFT),
+                'rw' => str_pad((string)rand(1,20), 2, '0', STR_PAD_LEFT),
+                'kontak' => $faker->phoneNumber(),
+                'media' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DB::table('posyandu')->insert($data);
     }
 }

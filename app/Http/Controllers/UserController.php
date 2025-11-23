@@ -8,10 +8,33 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return view('guest/user.index', compact('users'));
+        // Ambil request search & filter
+        $search = $request->input('search');
+        $filter = $request->input('filter');
+
+        // Query
+        $users = User::when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%");
+            });
+        })
+        ->when($filter, function ($query, $filter) {
+            if ($filter == 'gmail') {
+                $query->where('email', 'like', '%gmail.com');
+            } elseif ($filter == 'yahoo') {
+                $query->where('email', 'like', '%yahoo.com');
+            } elseif ($filter == 'outlook') {
+                $query->where('email', 'like', '%outlook.com');
+            }
+        })
+        ->orderBy('id', 'desc')
+        ->paginate(10)
+        ->withQueryString();
+
+        return view('guest/user.index', compact('users', 'search', 'filter'));
     }
 
     public function create()
@@ -33,7 +56,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
+        return redirect()->route('user.index')
+            ->with('success', 'User berhasil ditambahkan!');
     }
 
     public function edit(User $user)
@@ -60,12 +84,14 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui!');
+        return redirect()->route('user.index')
+            ->with('success', 'User berhasil diperbarui!');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->route('user.index')->with('success', 'User berhasil dihapus!');
+        return redirect()->route('user.index')
+            ->with('success', 'User berhasil dihapus!');
     }
 }

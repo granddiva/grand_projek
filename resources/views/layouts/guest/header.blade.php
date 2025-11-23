@@ -28,6 +28,10 @@
                 class="hover:text-pink-200 transition duration-150">
                 <i class="fas fa-chart-line mr-1"></i> Dashboard
             </a>
+            <a href="{{ route('posyandu.index') }}" onclick="switchView('form'); return false;"
+                class="hover:text-pink-200 transition duration-150">
+                <i class="fas fa-hospital mr-1"></i> Posyandu
+            </a>
             <a href="{{ route('warga.index') }}" onclick="switchView('form'); return false;"
                 class="hover:text-pink-200 transition duration-150">
                 <i class="fas fa-plus-circle mr-1"></i> Warga

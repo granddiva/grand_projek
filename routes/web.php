@@ -26,3 +26,7 @@ Route::get('/about', function () {
 
 Route::resource('posyandu', PosyanduController::class);
 Route::resource('kaderposyandu', KaderPosyanduController::class);
+
+
+Route::resource('posyandu', PosyanduController::class);
+

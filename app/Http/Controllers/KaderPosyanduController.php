@@ -29,6 +29,8 @@ class KaderPosyanduController extends Controller
         $posyandu = Posyandu::all();
         $warga = Warga::all();
         return view('guest/kader.create', compact('posyandu', 'warga'));
+
+
     }
 
     /**
@@ -43,7 +45,9 @@ class KaderPosyanduController extends Controller
         ]);
 
         KaderPosyandu::create($request->all());
-        return redirect()->route('kader.index')->with('success', 'Kader berhasil ditambahkan!');
+       return redirect()->route('kaderposyandu.index')
+    ->with('success', 'Kader berhasil ditambahkan!');
+
     }
 
     /**
@@ -72,7 +76,9 @@ class KaderPosyanduController extends Controller
     {
         $kader = KaderPosyandu::findOrFail($id);
         $kader->update($request->all());
-        return redirect()->route('kader.index')->with('success', 'Data kader diperbarui!');
+       return redirect()->route('kaderposyandu.index')
+    ->with('success', 'Kader berhasil ditambahkan!');
+
     }
 
     /**
@@ -81,6 +87,8 @@ class KaderPosyanduController extends Controller
     public function destroy(string $id)
     {
         KaderPosyandu::destroy($id);
-        return redirect()->route('kader.index')->with('success', 'Data kader dihapus!');
+        return redirect()->route('kaderposyandu.index')
+    ->with('success', 'Kader berhasil ditambahkan!');
+
     }
 }

@@ -7,26 +7,37 @@ use Illuminate\Http\Request;
 
 class WargaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $wargas = Warga::latest()->get();
-        return view('guest/warga.index', compact('wargas'));
+        // ambil input search & filter
+        $search = $request->input('search');
+        $filter_gender = $request->input('gender');
+
+        $wargas = Warga::query()
+
+            // pencarian
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama', 'like', "%$search%")
+                  ->orWhere('nik', 'like', "%$search%");
+            })
+
+            // filter jenis kelamin
+            ->when($filter_gender, function ($q) use ($filter_gender) {
+                $q->where('jenis_kelamin', $filter_gender);
+            })
+
+            ->orderBy('warga_id', 'desc')
+            ->paginate(12)  // pagination
+            ->withQueryString();
+
+        return view('guest/warga.index', compact('wargas', 'search', 'filter_gender'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('guest/warga.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -43,30 +54,15 @@ class WargaController extends Controller
             ->with('success', 'Data Warga berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Warga $warga)
     {
-        //
+        return view('guest/warga.edit', compact('warga'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        return view('warga.edit', compact('warga'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Warga $warga)
     {
         $request->validate([
-            // nik harus unik, kecuali NIK milik warga yang sedang diedit
-            'nik' => 'required|string|max:16|unique:wargas,nik,' . $warga->id,
+            'nik' => 'required|string|max:16|unique:wargas,nik,' . $warga->warga_id . ',warga_id',
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'alamat' => 'required|string',
@@ -79,9 +75,6 @@ class WargaController extends Controller
             ->with('success', 'Data Warga berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Warga $warga)
     {
         $warga->delete();

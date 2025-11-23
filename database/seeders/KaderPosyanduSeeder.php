@@ -4,32 +4,36 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Faker\Factory as Faker;
 
 class KaderPosyanduSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        DB::table('kader_posyandu')->insert([
-            [
-                'kader_id' => 1,
-                'posyandu_id' => 1,
-                'warga_id' => 1,
-                'peran' => 'Ketua',
-                'mulai_tugas' => '2023-01-01',
-                'akhir_tugas' => null,
-            ],
-            [
-                'kader_id' => 2,
-                'posyandu_id' => 2,
-                'warga_id' => 2,
-                'peran' => 'Bendahara',
-                'mulai_tugas' => '2023-06-01',
-                'akhir_tugas' => null,
-            ],
-        ]);
+        $faker = Faker::create('id_ID');
+
+        $peranList = ['Ketua', 'Bendahara', 'Sekretaris', 'Anggota'];
+
+        $data = [];
+
+        for ($i = 1; $i <= 100; $i++) {
+
+            $mulai = $faker->dateTimeBetween('-3 years', 'now')->format('Y-m-d');
+
+            $akhir = rand(1, 100) <= 30
+                ? $faker->dateTimeBetween($mulai, 'now')->format('Y-m-d')
+                : null;
+
+            $data[] = [
+                'kader_id'    => rand(1, 50),
+                'posyandu_id' => rand(1, 20),
+                'warga_id'    => rand(1, 200),
+                'peran'       => $faker->randomElement($peranList),
+                'mulai_tugas' => $mulai,
+                'akhir_tugas' => $akhir,
+            ];
+        }
+
+        DB::table('kader_posyandu')->insert($data);
     }
 }

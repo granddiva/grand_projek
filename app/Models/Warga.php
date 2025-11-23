@@ -9,6 +9,8 @@ class Warga extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'warga_id';
+
     protected $fillable = [
         'nik',
         'nama',
@@ -16,5 +18,4 @@ class Warga extends Model
         'alamat',
         'no_hp',
     ];
-    protected $primaryKey = 'warga_id';
 }

@@ -8,69 +8,97 @@ use Illuminate\Http\Request;
 class PosyanduController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource with search, filter and pagination.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Posyandu::all();
-        return view('posyandu.index', compact('data'));
+        $q = $request->input('q');           // search query (nama / alamat)
+        $filterRt = $request->input('rt');  // filter RT
+        $filterRw = $request->input('rw');  // filter RW
+
+        $perPage = (int) $request->input('per_page', 12);
+
+        $query = Posyandu::query();
+
+        // search nama / alamat / rt / rw
+        if ($q) {
+            $query->where(function($sub) use ($q) {
+                $sub->where('nama', 'like', "%{$q}%")
+                    ->orWhere('alamat', 'like', "%{$q}%")
+                    ->orWhere('rt', 'like', "%{$q}%")
+                    ->orWhere('rw', 'like', "%{$q}%");
+            });
+        }
+
+        if ($filterRt) {
+            $query->where('rt', $filterRt);
+        }
+
+        if ($filterRw) {
+            $query->where('rw', $filterRw);
+        }
+
+        $posyandus = $query->orderBy('id', 'desc')
+                           ->paginate($perPage)
+                           ->withQueryString();
+
+        // for filter dropdowns
+        $allRts = Posyandu::select('rt')->whereNotNull('rt')->distinct()->pluck('rt');
+        $allRws = Posyandu::select('rw')->whereNotNull('rw')->distinct()->pluck('rw');
+
+        return view('guest.posyandu.index', compact('posyandus', 'q', 'filterRt', 'filterRw', 'allRts', 'allRws'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('posyandu.create');
+        return view('guest.posyandu.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
-            'alamat' => 'required'
+            'nama' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'rt' => 'nullable|string|max:10',
+            'rw' => 'nullable|string|max:10',
+            'kontak' => 'nullable|string|max:50',
+            'media' => 'nullable|string|max:255', // plain text/url
         ]);
 
-        Posyandu::create($request->all());
-        return redirect()->route('posyandu.index')->with('success', 'Data berhasil ditambahkan!');
+        Posyandu::create($request->only(['nama','alamat','rt','rw','kontak','media']));
+
+        return redirect()->route('posyandu.index')->with('success', 'Posyandu berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Posyandu $posyandu)
     {
-        //
+        return view('guest.posyandu.show', compact('posyandu'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Posyandu $posyandu)
     {
-        $posyandu = Posyandu::findOrFail($id);
-        return view('posyandu.edit', compact('posyandu'));
+        return view('guest.posyandu.edit', compact('posyandu'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Posyandu $posyandu)
     {
-        $posyandu = Posyandu::findOrFail($id);
-        $posyandu->update($request->all());
-        return redirect()->route('posyandu.index')->with('success', 'Data berhasil diperbarui!');
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'rt' => 'nullable|string|max:10',
+            'rw' => 'nullable|string|max:10',
+            'kontak' => 'nullable|string|max:50',
+            'media' => 'nullable|string|max:255',
+        ]);
+
+        $posyandu->update($request->only(['nama','alamat','rt','rw','kontak','media']));
+
+        return redirect()->route('posyandu.index')->with('success', 'Posyandu berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Posyandu $posyandu)
     {
-        Posyandu::destroy($id);
-        return redirect()->route('posyandu.index')->with('success', 'Data berhasil dihapus!');
+        $posyandu->delete();
+        return redirect()->route('posyandu.index')->with('success', 'Posyandu berhasil dihapus.');
     }
 }

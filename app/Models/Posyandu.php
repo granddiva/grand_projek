@@ -2,23 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Posyandu extends Model
 {
+    use HasFactory;
+
     protected $table = 'posyandu';
-    protected $primaryKey = 'posyandu_id';
 
     protected $fillable = [
         'nama',
         'alamat',
         'rt',
         'rw',
-        'kontak'
+        'kontak',
+        'media',
     ];
-
-    public function kader()
-    {
-        return $this->hasMany(KaderPosyandu::class, 'posyandu_id');
-    }
 }
