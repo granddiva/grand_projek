@@ -9,28 +9,29 @@ class LayananPosyanduController extends Controller
 {
     public function index()
     {
-        // Ambil semua data layanan posyandu
         $layanans = LayananPosyandu::latest()->get();
 
-        // Hitung ringkasan statistik
         $total = $layanans->count();
         $rataBerat = $layanans->avg('berat') ?? 0;
         $rataTinggi = $layanans->avg('tinggi') ?? 0;
         $totalVitamin = $layanans->where('vitamin', '!=', 'Tidak Diberikan')->count();
 
-        // Kirim data ke view
-        return view('guest.index', compact('layanans', 'total', 'rataBerat', 'rataTinggi', 'totalVitamin'));
+        return view('pages.posyandu.index', compact(
+            'layanans',
+            'total',
+            'rataBerat',
+            'rataTinggi',
+            'totalVitamin'
+        ));
     }
 
     public function create()
     {
-        // Tampilkan form tambah layanan
-        return view('guest.create');
+        return view('pages.posyandu.create');
     }
 
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
             'jadwal_id' => 'required|numeric',
             'warga_id' => 'required|numeric',
@@ -40,7 +41,6 @@ class LayananPosyanduController extends Controller
             'konseling' => 'required|string|max:255',
         ]);
 
-        // Simpan data ke database
         LayananPosyandu::create([
             'jadwal_id' => $request->jadwal_id,
             'warga_id' => $request->warga_id,
@@ -56,7 +56,8 @@ class LayananPosyanduController extends Controller
     public function edit($layanan_id)
     {
         $layanan = LayananPosyandu::findOrFail($layanan_id);
-        return view('guest.edit', compact('layanan'));
+
+        return view('pages.posyandu.edit', compact('layanan'));
     }
 
     public function update(Request $request, $layanan_id)

@@ -9,86 +9,71 @@ use App\Models\KaderPosyandu;
 
 class KaderPosyanduController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // Mengambil data dan menamainya $kader (bukan $data)
         $kader = KaderPosyandu::with(['posyandu', 'warga'])->get();
-
-        // Mengirimkan variabel $kader ke view
-        return view('guest/kader.index', compact('kader')); // <-- Perubahan di sini
+        return view('pages.kader.index', compact('kader'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $posyandu = Posyandu::all();
         $warga = Warga::all();
-        return view('guest/kader.create', compact('posyandu', 'warga'));
 
-
+        return view('pages.kader.create', compact('posyandu', 'warga'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'posyandu_id' => 'required',
-            'warga_id' => 'required',
-            'peran' => 'required'
+            'posyandu_id' => 'required|exists:posyandu,id',
+            'warga_id' => 'required|exists:warga,id',
+            'peran' => 'required|string',
+            'mulai_tugas' => 'nullable|date',
+            'akhir_tugas' => 'nullable|date',
         ]);
 
         KaderPosyandu::create($request->all());
-       return redirect()->route('kaderposyandu.index')
-    ->with('success', 'Kader berhasil ditambahkan!');
 
+        return redirect()
+            ->route('kaderposyandu.index')
+            ->with('success', 'Kader berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit($id)
     {
         $kader = KaderPosyandu::findOrFail($id);
         $posyandu = Posyandu::all();
         $warga = Warga::all();
-        return view('guest/kader.edit', compact('kader', 'posyandu', 'warga'));
+
+        return view('pages.kader.edit', compact('kader', 'posyandu', 'warga'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $kader = KaderPosyandu::findOrFail($id);
-        $kader->update($request->all());
-       return redirect()->route('kaderposyandu.index')
-    ->with('success', 'Kader berhasil ditambahkan!');
 
+        $request->validate([
+            'posyandu_id' => 'required|exists:posyandu,id',
+            'warga_id' => 'required|exists:warga,id',
+            'peran' => 'required|string',
+            'mulai_tugas' => 'nullable|date',
+            'akhir_tugas' => 'nullable|date',
+        ]);
+
+        $kader->update($request->all());
+
+        return redirect()
+            ->route('kaderposyandu.index')
+            ->with('success', 'Kader berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
         KaderPosyandu::destroy($id);
-        return redirect()->route('kaderposyandu.index')
-    ->with('success', 'Kader berhasil ditambahkan!');
 
+        return redirect()
+            ->route('kaderposyandu.index')
+            ->with('success', 'Kader berhasil dihapus.');
     }
 }

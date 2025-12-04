@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -13,10 +12,11 @@ class AuthController extends Controller
      */
     public function index()
     {
-        return view('guest/login.login');
+        return view('pages.auth.login');
     }
+
     /**
-     * Memproses data login (Otentikasi Database)
+     * Memproses Login
      */
     public function login(Request $request)
     {
@@ -33,11 +33,12 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->intended(route('layanan.index'))->with('success', 'Login berhasil!');
+            return redirect()->intended(route('posyandu.index'))
+                ->with('success', 'Login berhasil!');
         }
 
         return back()->withInput()->withErrors([
-            'email' => 'Email atau Password yang Anda masukkan salah.',
+            'email' => 'Email atau Password salah.',
         ]);
     }
 

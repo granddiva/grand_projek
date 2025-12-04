@@ -1,4 +1,4 @@
-@extends('layouts.guest.app')
+@extends('layouts.app')
 
 @section('content')
     <!-- Pastikan Anda memuat Font Awesome dan Tailwind CSS di layout utama (layouts.guest.app) -->

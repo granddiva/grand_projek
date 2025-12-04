@@ -9,43 +9,44 @@ class WargaController extends Controller
 {
     public function index(Request $request)
     {
-        // ambil input search & filter
         $search = $request->input('search');
-        $filter_gender = $request->input('gender');
+        $gender = $request->input('gender');
 
         $wargas = Warga::query()
 
-            // pencarian
-            ->when($search, function ($q) use ($search) {
-                $q->where('nama', 'like', "%$search%")
-                  ->orWhere('nik', 'like', "%$search%");
+            // Pencarian (nama / nik)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                      ->orWhere('nik', 'like', "%{$search}%");
+                });
             })
 
-            // filter jenis kelamin
-            ->when($filter_gender, function ($q) use ($filter_gender) {
-                $q->where('jenis_kelamin', $filter_gender);
+            // Filter jenis kelamin
+            ->when($gender, function ($query) use ($gender) {
+                $query->where('jenis_kelamin', $gender);
             })
 
             ->orderBy('warga_id', 'desc')
-            ->paginate(12)  // pagination
+            ->paginate(12)
             ->withQueryString();
 
-        return view('guest/warga.index', compact('wargas', 'search', 'filter_gender'));
+        return view('pages.warga.index', compact('wargas', 'search', 'gender'));
     }
 
     public function create()
     {
-        return view('guest/warga.create');
+        return view('pages.warga.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string|unique:wargas,nik|max:16',
-            'nama' => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-            'alamat' => 'required|string',
-            'no_hp' => 'nullable|string|max:15',
+            'nik'            => 'required|string|unique:wargas,nik|max:16',
+            'nama'           => 'required|string|max:255',
+            'jenis_kelamin'  => 'required|in:Laki-laki,Perempuan',
+            'alamat'         => 'required|string',
+            'no_hp'          => 'nullable|string|max:15',
         ]);
 
         Warga::create($request->all());
@@ -56,7 +57,7 @@ class WargaController extends Controller
 
     public function edit(Warga $warga)
     {
-        return view('guest/warga.edit', compact('warga'));
+        return view('pages.warga.edit', compact('warga'));
     }
 
     public function update(Request $request, Warga $warga)

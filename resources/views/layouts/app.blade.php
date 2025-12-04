@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Posyandu Digital - Realtime</title>
-    @include('layouts.guest.css')
+    @include('layouts.css')
     {{-- START: CUT & PASTE KE resources/views/partials/_header.blade.php --}}
-    @include('layouts.guest.header')
+    @include('layouts.header')
     {{-- END: CUT & PASTE KE resources/views/partials/_header.blade.php --}}
 
 </head>
@@ -23,8 +23,8 @@
 
 
     {{-- START: CUT & PASTE KE resources/views/partials/_footer_js.blade.php --}}
-    @include('layouts.guest.js')
-    @include('layouts.guest.footer')
+    @include('layouts.js')
+    @include('layouts.footer')
     {{-- END: CUT & PASTE KE resources/views/partials/_footer_js.blade.php --}}
 
 </body>

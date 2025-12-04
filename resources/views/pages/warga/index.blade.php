@@ -1,9 +1,8 @@
-@extends('layouts.guest.app')
+@extends('layouts.app')
 
 @section('content')
 <div class="w-full bg-gray-50 min-h-screen px-6 py-6 mx-auto pt-24">
 
-    {{-- Notifikasi --}}
     @if (session('success'))
         <div class="p-4 mb-4 text-white bg-pink-600 rounded-lg shadow-md">
             {{ session('success') }}
@@ -27,30 +26,25 @@
                     </div>
                 </header>
 
-                {{-- Filter & Search --}}
+                {{-- FILTER & SEARCH --}}
                 <form method="GET" class="mb-6 px-6 flex flex-wrap gap-3">
                     <input type="text" name="search"
-                        value="{{ request('search') }}"
+                        value="{{ $search }}"
                         class="px-4 py-2 border rounded-lg"
                         placeholder="Cari nama / NIK ...">
 
                     <select name="gender" class="px-4 py-2 border rounded-lg">
                         <option value="">Semua Jenis Kelamin</option>
-                        <option value="Laki-laki" {{ request('gender') == 'Laki-laki' ? 'selected' : '' }}>
-                            Laki-laki
-                        </option>
-                        <option value="Perempuan" {{ request('gender') == 'Perempuan' ? 'selected' : '' }}>
-                            Perempuan
-                        </option>
+                        <option value="Laki-laki" {{ $gender == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="Perempuan" {{ $gender == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                     </select>
 
-                    <button
-                        class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
+                    <button class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
                         Terapkan
                     </button>
                 </form>
 
-                {{-- Tombol Tambah --}}
+                {{-- TOMBOL TAMBAH --}}
                 <a href="{{ route('warga.create') }}"
                     class="ml-6 px-4 py-2 text-sm font-bold text-white bg-pink-600 rounded-lg hover:bg-pink-700">
                     Tambah Warga
@@ -60,27 +54,24 @@
             {{-- GRID --}}
             <div class="p-6">
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+
                     @forelse ($wargas as $warga)
                     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-100">
                         <div class="p-6">
 
-                            {{-- Header --}}
+                            {{-- HEADER --}}
                             <div class="flex items-center mb-4 space-x-4">
-                                <div
-                                    class="h-14 w-14 rounded-full bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center text-white text-lg font-bold shadow-md">
+                                <div class="h-14 w-14 rounded-full bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center text-white text-lg font-bold shadow-md">
                                     <i class="fa fa-user"></i>
                                 </div>
+
                                 <div>
-                                    <h4 class="text-base font-semibold text-slate-800">
-                                        {{ $warga->nama }}
-                                    </h4>
-                                    <p class="text-xs text-gray-500">
-                                        NIK: {{ $warga->nik }}
-                                    </p>
+                                    <h4 class="text-base font-semibold text-slate-800">{{ $warga->nama }}</h4>
+                                    <p class="text-xs text-gray-500">NIK: {{ $warga->nik }}</p>
                                 </div>
                             </div>
 
-                            {{-- Tags --}}
+                            {{-- TAGS --}}
                             <div class="flex flex-wrap gap-2 mb-4">
                                 <span class="px-2 py-0.5 text-xs rounded-full bg-pink-100 text-pink-800">
                                     {{ $warga->jenis_kelamin }}
@@ -99,6 +90,7 @@
 
                             {{-- Aksi --}}
                             <div class="flex justify-between pt-3 border-t border-gray-100">
+
                                 <a href="{{ route('warga.edit', $warga) }}"
                                     class="text-xs font-semibold text-pink-600 hover:text-pink-800">
                                     <i class="fa fa-edit mr-1"></i> Edit
@@ -113,7 +105,9 @@
                                         <i class="fa fa-trash mr-1"></i> Hapus
                                     </button>
                                 </form>
+
                             </div>
+
                         </div>
                     </div>
                     @empty
@@ -123,13 +117,14 @@
                     @endforelse
                 </div>
 
-                {{-- Pagination --}}
+                {{-- PAGINATION --}}
                 <div class="mt-6">
                     {{ $wargas->links() }}
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
+
 </div>
 @endsection

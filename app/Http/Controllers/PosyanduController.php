@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Posyandu;
@@ -7,98 +6,102 @@ use Illuminate\Http\Request;
 
 class PosyanduController extends Controller
 {
-    /**
-     * Display a listing of the resource with search, filter and pagination.
-     */
     public function index(Request $request)
     {
-        $q = $request->input('q');           // search query (nama / alamat)
-        $filterRt = $request->input('rt');  // filter RT
-        $filterRw = $request->input('rw');  // filter RW
+        // kolom yang boleh dicari
+        $searchable = ['nama', 'alamat', 'rt', 'rw', 'kontak', 'media'];
 
-        $perPage = (int) $request->input('per_page', 12);
+        // ambil per_page dari query string (fallback 10)
+        $perPage = (int) $request->input('per_page', 10);
+        if ($perPage <= 0) {
+            $perPage = 10;
+        }
 
         $query = Posyandu::query();
 
-        // search nama / alamat / rt / rw
-        if ($q) {
-            $query->where(function($sub) use ($q) {
-                $sub->where('nama', 'like', "%{$q}%")
-                    ->orWhere('alamat', 'like', "%{$q}%")
-                    ->orWhere('rt', 'like', "%{$q}%")
-                    ->orWhere('rw', 'like', "%{$q}%");
+        // pencarian
+        if ($q = $request->input('q')) {
+            $query->where(function ($sub) use ($q, $searchable) {
+                foreach ($searchable as $col) {
+                    $sub->orWhere($col, 'like', "%{$q}%");
+                }
             });
         }
 
-        if ($filterRt) {
-            $query->where('rt', $filterRt);
+        // filter RT / RW (jika diisi)
+        if ($rt = $request->input('rt')) {
+            $query->where('rt', $rt);
+        }
+        if ($rw = $request->input('rw')) {
+            $query->where('rw', $rw);
         }
 
-        if ($filterRw) {
-            $query->where('rw', $filterRw);
-        }
+        $posyandu = $query->orderBy('id', 'desc')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->onEachSide(1);
 
-        $posyandus = $query->orderBy('id', 'desc')
-                           ->paginate($perPage)
-                           ->withQueryString();
-
-        // for filter dropdowns
-        $allRts = Posyandu::select('rt')->whereNotNull('rt')->distinct()->pluck('rt');
-        $allRws = Posyandu::select('rw')->whereNotNull('rw')->distinct()->pluck('rw');
-
-        return view('guest.posyandu.index', compact('posyandus', 'q', 'filterRt', 'filterRw', 'allRts', 'allRws'));
+        return view('pages.posyandu.index', compact('posyandu'));
     }
 
     public function create()
     {
-        return view('guest.posyandu.create');
+        $posyandu = Posyandu::all();
+        $warga    = Warga::all();
+        $jadwal   = JadwalPosyandu::all();
+
+        return view('pages.posyandu.create', compact('posyandu', 'warga', 'jadwal'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
+            'nama'   => 'required|string|max:255',
             'alamat' => 'required|string',
-            'rt' => 'nullable|string|max:10',
-            'rw' => 'nullable|string|max:10',
+            'rt'     => 'nullable|string|max:10',
+            'rw'     => 'nullable|string|max:10',
             'kontak' => 'nullable|string|max:50',
-            'media' => 'nullable|string|max:255', // plain text/url
+            'media'  => 'nullable|string|max:255',
         ]);
 
-        Posyandu::create($request->only(['nama','alamat','rt','rw','kontak','media']));
+        Posyandu::create($request->only(['nama', 'alamat', 'rt', 'rw', 'kontak', 'media']));
 
-        return redirect()->route('posyandu.index')->with('success', 'Posyandu berhasil ditambahkan.');
+        return redirect()->route('posyandu.index')
+            ->with('success', 'Posyandu berhasil ditambahkan.');
     }
 
     public function show(Posyandu $posyandu)
     {
-        return view('guest.posyandu.show', compact('posyandu'));
+        return view('pages.posyandu.show', compact('posyandu'));
     }
 
     public function edit(Posyandu $posyandu)
     {
-        return view('guest.posyandu.edit', compact('posyandu'));
+        return view('pages.posyandu.edit', compact('posyandu'));
     }
 
     public function update(Request $request, Posyandu $posyandu)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
+            'nama'   => 'required|string|max:255',
             'alamat' => 'required|string',
-            'rt' => 'nullable|string|max:10',
-            'rw' => 'nullable|string|max:10',
+            'rt'     => 'nullable|string|max:10',
+            'rw'     => 'nullable|string|max:10',
             'kontak' => 'nullable|string|max:50',
-            'media' => 'nullable|string|max:255',
+            'media'  => 'nullable|string|max:255',
         ]);
 
-        $posyandu->update($request->only(['nama','alamat','rt','rw','kontak','media']));
+        $posyandu->update($request->only(['nama', 'alamat', 'rt', 'rw', 'kontak', 'media']));
 
-        return redirect()->route('posyandu.index')->with('success', 'Posyandu berhasil diperbarui.');
+        return redirect()->route('posyandu.index')
+            ->with('success', 'Posyandu berhasil diperbarui.');
     }
 
     public function destroy(Posyandu $posyandu)
     {
         $posyandu->delete();
-        return redirect()->route('posyandu.index')->with('success', 'Posyandu berhasil dihapus.');
+
+        return redirect()->route('posyandu.index')
+            ->with('success', 'Posyandu berhasil dihapus.');
     }
 }

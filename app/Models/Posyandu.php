@@ -17,6 +17,5 @@ class Posyandu extends Model
         'rt',
         'rw',
         'kontak',
-        'media',
     ];
 }
