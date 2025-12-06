@@ -1,7 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\JadwalPosyandu;
+use App\Models\Media;
 use App\Models\Posyandu;
+use App\Models\Warga;
 use Illuminate\Http\Request;
 
 class PosyanduController extends Controller
@@ -36,7 +39,7 @@ class PosyanduController extends Controller
             $query->where('rw', $rw);
         }
 
-        $posyandu = $query->orderBy('id', 'desc')
+        $posyandu = $query->orderBy('posyandu_id', 'desc')
             ->paginate($perPage)
             ->withQueryString()
             ->onEachSide(1);
@@ -56,15 +59,36 @@ class PosyanduController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'   => 'required|string|max:255',
-            'alamat' => 'required|string',
-            'rt'     => 'nullable|string|max:10',
-            'rw'     => 'nullable|string|max:10',
-            'kontak' => 'nullable|string|max:50',
-            'media'  => 'nullable|string|max:255',
+            'nama'    => 'required|string|max:255',
+            'alamat'  => 'required|string',
+            'rt'      => 'nullable|string|max:10',
+            'rw'      => 'nullable|string|max:10',
+            'kontak'  => 'nullable|string|max:50',
+
+            // multiple files
+            'files.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4,pdf|max:5000',
         ]);
 
-        Posyandu::create($request->only(['nama', 'alamat', 'rt', 'rw', 'kontak', 'media']));
+        // 1. Simpan posyandu dulu
+        $posyandu = Posyandu::create($request->only(['nama', 'alamat', 'rt', 'rw', 'kontak']));
+
+        // 2. Handle multiple file upload
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $i => $file) {
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->storeAs('public/media', $filename);
+
+                Media::create([
+                    'ref_table'  => 'posyandu',
+                    'ref_id'     => $posyandu->posyandu_id,
+                    'file_name'  => $filename,
+                    'caption'    => null,
+                    'mime_type'  => $file->getClientMimeType(),
+                    'sort_order' => $i + 1,
+
+                ]);
+            }
+        }
 
         return redirect()->route('posyandu.index')
             ->with('success', 'Posyandu berhasil ditambahkan.');
@@ -72,26 +96,54 @@ class PosyanduController extends Controller
 
     public function show(Posyandu $posyandu)
     {
-        return view('pages.posyandu.show', compact('posyandu'));
+        $media = Media::where('ref_table', 'posyandu')
+            ->where('ref_id', $posyandu->posyandu_id)
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('pages.posyandu.show', compact('posyandu', 'media'));
     }
 
     public function edit(Posyandu $posyandu)
     {
-        return view('pages.posyandu.edit', compact('posyandu'));
+        $existingMedia = Media::where('ref_table', 'posyandu')
+            ->where('ref_id', $posyandu->posyandu_id)
+            ->get();
+
+        return view('pages.posyandu.edit', compact('posyandu', 'existingMedia'));
     }
 
     public function update(Request $request, Posyandu $posyandu)
     {
         $request->validate([
-            'nama'   => 'required|string|max:255',
-            'alamat' => 'required|string',
-            'rt'     => 'nullable|string|max:10',
-            'rw'     => 'nullable|string|max:10',
-            'kontak' => 'nullable|string|max:50',
-            'media'  => 'nullable|string|max:255',
+            'nama'    => 'required|string|max:255',
+            'alamat'  => 'required|string',
+            'rt'      => 'nullable|string|max:10',
+            'rw'      => 'nullable|string|max:10',
+            'kontak'  => 'nullable|string|max:50',
+
+            'files.*' => 'nullable|file|mimes:jpg,jpeg,png,mp4,pdf|max:5000',
         ]);
 
-        $posyandu->update($request->only(['nama', 'alamat', 'rt', 'rw', 'kontak', 'media']));
+        $posyandu->update($request->only(['nama', 'alamat', 'rt', 'rw', 'kontak']));
+
+        // Tambah file baru jika diupload
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $i => $file) {
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->storeAs('public/media', $filename);
+
+                Media::create([
+                    'ref_table'  => 'posyandu',
+                    'ref_id'     => $posyandu->posyandu_id,
+                    'file_name'  => $filename,
+                    'caption'    => null,
+                    'mime_type'  => $file->getClientMimeType(),
+                    'sort_order' => $i + 1,
+
+                ]);
+            }
+        }
 
         return redirect()->route('posyandu.index')
             ->with('success', 'Posyandu berhasil diperbarui.');
@@ -104,4 +156,5 @@ class PosyanduController extends Controller
         return redirect()->route('posyandu.index')
             ->with('success', 'Posyandu berhasil dihapus.');
     }
+
 }

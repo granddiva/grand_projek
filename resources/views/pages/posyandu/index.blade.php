@@ -120,17 +120,17 @@
                                     {{-- Button Group untuk Aksi --}}
                                     <div class="btn-group btn-group-sm" role="group" aria-label="Aksi Posyandu">
 
-                                        <a href="{{ route('posyandu.show', $p->id) }}"
+                                        <a href="{{ route('posyandu.show', $p->posyandu_id) }}"
                                            class="btn btn-info text-white" title="Detail">
                                             <i class="fas fa-eye"></i>
                                         </a>
 
-                                        <a href="{{ route('posyandu.edit', $p->id) }}"
+                                        <a href="{{ route('posyandu.edit', $p->posyandu_id) }}"
                                            class="btn btn-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
 
-                                        <form action="{{ route('posyandu.destroy', $p->id) }}"
+                                        <form action="{{ route('posyandu.destroy', $p->posyandu_id) }}"
                                               method="POST"
                                               class="d-inline"
                                               onsubmit="return confirm('Yakin hapus data Posyandu {{ $p->nama }}?')">

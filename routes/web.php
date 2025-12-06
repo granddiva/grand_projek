@@ -7,6 +7,7 @@ use App\Http\Controllers\WargaController;
 use App\Http\Controllers\PosyanduController;
 use App\Http\Controllers\KaderPosyanduController;
 use App\Http\Controllers\LayananPosyanduController;
+use App\Http\Controllers\JadwalPosyanduController;
 use App\Http\Controllers\ProfileController;
 
 // ==========================
@@ -29,6 +30,8 @@ Route::resource('user', UserController::class);
 Route::resource('warga', WargaController::class);
 Route::resource('posyandu', PosyanduController::class);
 Route::resource('kaderposyandu', KaderPosyanduController::class);
+Route::resource('jadwal', JadwalPosyanduController::class);
+
 
 // ==========================
 // HALAMAN GUEST
