@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\LayananPosyandu;
@@ -11,42 +10,47 @@ class LayananPosyanduController extends Controller
     {
         $layanans = LayananPosyandu::latest()->get();
 
-        $total = $layanans->count();
-        $rataBerat = $layanans->avg('berat') ?? 0;
-        $rataTinggi = $layanans->avg('tinggi') ?? 0;
+        $total        = $layanans->count();
+        $rataBerat    = $layanans->avg('berat') ?? 0;
+        $rataTinggi   = $layanans->avg('tinggi') ?? 0;
         $totalVitamin = $layanans->where('vitamin', '!=', 'Tidak Diberikan')->count();
+        $allRts       = [];
+        $allRws       = [];
 
-        return view('pages.posyandu.index', compact(
-            'layanans',
-            'total',
-            'rataBerat',
-            'rataTinggi',
-            'totalVitamin'
-        ));
+        return view('pages.layanan.index', [
+            'layanans'     => $layanans,
+            'total'        => $total,
+            'rataBerat'    => $rataBerat,
+            'rataTinggi'   => $rataTinggi,
+            'totalVitamin' => $totalVitamin,
+            'allRts'       => $allRts,
+            'allRws'       => $allRws,
+        ]);
+
     }
 
     public function create()
     {
-        return view('pages.posyandu.create');
+        return view('pages.layanan.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'jadwal_id' => 'required|numeric',
-            'warga_id' => 'required|numeric',
-            'berat' => 'required|numeric',
-            'tinggi' => 'required|numeric',
-            'vitamin' => 'required|string|max:100',
+            'warga_id'  => 'required|numeric',
+            'berat'     => 'required|numeric',
+            'tinggi'    => 'required|numeric',
+            'vitamin'   => 'required|string|max:100',
             'konseling' => 'required|string|max:255',
         ]);
 
         LayananPosyandu::create([
             'jadwal_id' => $request->jadwal_id,
-            'warga_id' => $request->warga_id,
-            'berat' => $request->berat,
-            'tinggi' => $request->tinggi,
-            'vitamin' => $request->vitamin,
+            'warga_id'  => $request->warga_id,
+            'berat'     => $request->berat,
+            'tinggi'    => $request->tinggi,
+            'vitamin'   => $request->vitamin,
             'konseling' => $request->konseling,
         ]);
 
@@ -57,7 +61,7 @@ class LayananPosyanduController extends Controller
     {
         $layanan = LayananPosyandu::findOrFail($layanan_id);
 
-        return view('pages.posyandu.edit', compact('layanan'));
+        return view('pages.layanan.edit', compact('layanan'));
     }
 
     public function update(Request $request, $layanan_id)
@@ -65,16 +69,16 @@ class LayananPosyanduController extends Controller
         $layanan = LayananPosyandu::findOrFail($layanan_id);
 
         $request->validate([
-            'berat' => 'required|numeric',
-            'tinggi' => 'required|numeric',
-            'vitamin' => 'required|string|max:100',
+            'berat'     => 'required|numeric',
+            'tinggi'    => 'required|numeric',
+            'vitamin'   => 'required|string|max:100',
             'konseling' => 'required|string|max:255',
         ]);
 
         $layanan->update([
-            'berat' => $request->berat,
-            'tinggi' => $request->tinggi,
-            'vitamin' => $request->vitamin,
+            'berat'     => $request->berat,
+            'tinggi'    => $request->tinggi,
+            'vitamin'   => $request->vitamin,
             'konseling' => $request->konseling,
         ]);
 

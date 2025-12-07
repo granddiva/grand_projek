@@ -1,18 +1,18 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Media;
-use App\Models\Warga;
-use App\Models\Posyandu;
-use Illuminate\Http\Request;
 use App\Models\JadwalPosyandu;
+use App\Models\Media;
+use App\Models\Posyandu;
+use App\Models\Warga;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PosyanduController extends Controller
 {
     public function index(Request $request)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login')->withErrors('Silakan login terlebih dahulu!');
         }
         // kolom yang boleh dicari
@@ -48,7 +48,17 @@ class PosyanduController extends Controller
             ->withQueryString()
             ->onEachSide(1);
 
-        return view('pages.posyandu.index', compact('posyandu'));
+        $allRts = Posyandu::select('rt')->distinct()->pluck('rt')->filter()->values();
+        $allRws = Posyandu::select('rw')->distinct()->pluck('rw')->filter()->values();
+
+        return view('pages.posyandu.index', [
+            'posyandus' => $posyandu,
+            'allRts'    => $allRts,
+            'allRws'    => $allRws,
+            'q'         => $request->input('q'),
+            'filterRt'  => $request->input('rt'),
+            'filterRw'  => $request->input('rw'),
+        ]);
     }
 
     public function create()

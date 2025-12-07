@@ -40,8 +40,7 @@
                 class="hover:text-pink-200 transition duration-150">
                 <i class="fas fa-user mr-1"></i> Kader
             </a>
-            <a href="#" onclick="switchView('form'); return false;"
-                class="hover:text-pink-200 transition duration-150">
+            <a href="{{ route('about') }}" class="hover:text-pink-200 transition duration-150">
                 <i class="fas fa-info-circle mr-1"></i> Tentang Aplikasi
             </a>
 
@@ -74,15 +73,15 @@
 
                     {{-- Logout --}}
                     {{-- Penerapan Auth::check, jika user tidak login tidak bisa logout --}}
-                    @if(Auth::check())
-                    <form action="{{ route('logout') }}" method="POST" class="mt-1">
-                        @csrf
-                        <button type="submit"
-                            class="w-full text-left px-4 py-2 text-sm hover:bg-pink-50 hover:text-pink-600 transition">
-                            <i class="fas fa-sign-out-alt mr-2"></i>
-                            Logout
-                        </button>
-                    </form>
+                    @if (Auth::check())
+                        <form action="{{ route('logout') }}" method="POST" class="mt-1">
+                            @csrf
+                            <button type="submit"
+                                class="w-full text-left px-4 py-2 text-sm hover:bg-pink-50 hover:text-pink-600 transition">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Logout
+                            </button>
+                        </form>
                     @endif
 
                 </div>

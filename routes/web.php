@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\JadwalPosyanduController;
+use App\Http\Controllers\KaderPosyanduController;
+use App\Http\Controllers\LayananPosyanduController;
+use App\Http\Controllers\PosyanduController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WargaController;
-use App\Http\Controllers\PosyanduController;
-use App\Http\Controllers\KaderPosyanduController;
-use App\Http\Controllers\JadwalPosyanduController;
-use App\Http\Controllers\LayananPosyanduController;
+use Illuminate\Support\Facades\Route;
 
 // LOGIN
-Route::get('/', [AuthController::class, 'index'])->name('login.form');
+Route::match(['GET', 'POST'], '/', [AuthController::class, 'index'])->name('login.form');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+Route::view('/about', 'pages.about.about')->name('about');
 // SEMUA YANG LOGIN
 Route::middleware(['checkislogin'])->group(function () {
 
@@ -22,7 +22,7 @@ Route::middleware(['checkislogin'])->group(function () {
         ->middleware('checkrole:admin');
 
     Route::resource('posyandu', PosyanduController::class)
-        ->middleware('checkrole:admin,warga');
+        ->middleware('checkrole:admin,warga,kader');
 
     Route::resource('kaderposyandu', KaderPosyanduController::class)
         ->middleware('checkrole:admin');

@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tentang Aplikasi</title>
-    @include('layouts.guest.css')
+    @include('layouts.css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
@@ -59,7 +59,7 @@
 
 <body class="m-0 font-sans text-base antialiased font-normal leading-default bg-gray-50 text-slate-500">
 
-    @include('layouts.guest.header')
+    @include('layouts.header')
 
     <main class="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-68 rounded-xl">
 
@@ -179,11 +179,11 @@
                 </div>
             </div>
 
-            @include('layouts.guest.footer')
+            @include('layouts.footer')
         </div>
     </main>
 
-    @include('layouts.guest.js')
+    @include('layouts.js')
 </body>
 
 </html>

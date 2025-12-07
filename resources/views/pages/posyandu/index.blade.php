@@ -1,168 +1,109 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-home text-pink-500 mr-2"></i> Data Posyandu
+            </h2>
+            <p class="text-sm text-gray-500">Kelola data posyandu — cari, filter RT/RW, dan navigasi halaman.</p>
+        </div>
 
-    {{-- HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">
-            <i class="fas fa-clinic-medical me-2 text-pink"></i> Data Posyandu
-        </h2>
-        <a href="{{ route('posyandu.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus me-1"></i> Tambah Posyandu
+        <a href="{{ route('posyandu.create') }}" class="bg-pink-600 text-white px-4 py-2 rounded-full shadow hover:bg-pink-700">
+            <i class="fas fa-plus-circle mr-1"></i> Tambah Posyandu
         </a>
     </div>
 
-    {{-- ALERT --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="p-4 mb-4 text-white bg-green-600 rounded">
             {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-white p-3 border-bottom">
-            {{-- ================================================================= --}}
-            {{-- SEARCH & FILTER FORM (Dibuat lebih inline dan rapi) --}}
-            {{-- ================================================================= --}}
-            <form method="GET" action="{{ route('posyandu.index') }}">
-                <div class="row g-3 align-items-center">
+    {{-- Search + Filters --}}
+    <form method="GET" class="mb-4 flex flex-wrap gap-3 items-center">
+        <input type="text" name="q" value="{{ request('q') ?? $q ?? '' }}"
+               placeholder="Cari nama, alamat, RT, RW..."
+               class="px-4 py-2 border rounded w-80" />
 
-                    {{-- Pencarian Umum (q) --}}
-                    <div class="col-md-4">
-                        <input type="text" name="q" class="form-control form-control-sm"
-                               placeholder="Cari nama / alamat / RT / RW..."
-                               value="{{ request('q') }}">
+        <select name="rt" class="px-3 py-2 border rounded">
+            <option value="">Filter RT</option>
+            @foreach($allRts as $rt)
+                <option value="{{ $rt }}" {{ (string) ($filterRt ?? request('rt')) === (string)$rt ? 'selected' : '' }}>
+                    {{ $rt }}
+                </option>
+            @endforeach
+        </select>
+
+        <select name="rw" class="px-3 py-2 border rounded">
+            <option value="">Filter RW</option>
+            @foreach($allRws as $rw)
+                <option value="{{ $rw }}" {{ (string) ($filterRw ?? request('rw')) === (string)$rw ? 'selected' : '' }}>
+                    {{ $rw }}
+                </option>
+            @endforeach
+        </select>
+
+
+
+        <select name="per_page" class="px-3 py-2 border rounded">
+            <option value="6" {{ request('per_page')==6 ? 'selected' : '' }}>6</option>
+            <option value="12" {{ request('per_page')==12 ? 'selected' : '' }}>12</option>
+            <option value="24" {{ request('per_page')==24 ? 'selected' : '' }}>24</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button class="px-4 py-2 bg-pink-600 text-white rounded">Terapkan</button>
+            <a href="{{ route('posyandu.index') }}" class="px-4 py-2 border rounded">Reset</a>
+        </div>
+    </form>
+
+    {{-- Grid list --}}
+    @if ($posyandus->isEmpty())
+        <div class="text-center p-12 bg-pink-50 rounded">
+            <i class="fas fa-box-open text-5xl mb-3 text-pink-400"></i>
+            <p class="text-lg text-pink-600">Belum ada data posyandu.</p>
+            <a href="{{ route('posyandu.create') }}" class="mt-4 inline-block px-4 py-2 bg-pink-600 text-white rounded">Tambah Posyandu</a>
+        </div>
+    @else
+        <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            @foreach ($posyandus as $item)
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-pink-400">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold">{{ $item->nama }}</h3>
+                            <p class="text-sm text-gray-500">{{ Str::limit($item->alamat, 90) }}</p>
+                        </div>
+                        {{-- media (plain text) --}}
+                        @if($item->media)
+                            <div class="text-sm text-gray-400">{{ Str::limit($item->media, 20) }}</div>
+                        @endif
                     </div>
 
-                    {{-- Filter RT --}}
-                    <div class="col-md-1">
-                        <input type="text" name="rt" class="form-control form-control-sm"
-                               placeholder="RT" value="{{ request('rt') }}">
+                    <div class="mt-4 text-sm text-gray-700">
+                        <div><strong>RT:</strong> {{ $item->rt ?? '-' }} | <strong>RW:</strong> {{ $item->rw ?? '-' }}</div>
+                        <div class="mt-1"><strong>Kontak:</strong> {{ $item->kontak ?? '-' }}</div>
                     </div>
 
-                    {{-- Filter RW --}}
-                    <div class="col-md-1">
-                        <input type="text" name="rw" class="form-control form-control-sm"
-                               placeholder="RW" value="{{ request('rw') }}">
-                    </div>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <a href="{{ route('posyandu.edit', $item) }}" class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600">Edit</a>
 
-                    {{-- Item per halaman (per_page) --}}
-                    <div class="col-md-2">
-                        <select name="per_page" class="form-select form-select-sm">
-                            <option selected disabled>Tampil Data</option>
-                            @foreach([10, 15, 25, 50] as $n)
-                                <option value="{{ $n }}" {{ request('per_page') == $n ? 'selected' : '' }}>
-                                    {{ $n }} Data
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Tombol Submit / Filter --}}
-                    <div class="col-md-2">
-                        <button class="btn btn-sm btn-outline-secondary w-100" type="submit">
-                            <i class="fas fa-search me-1"></i> Filter
-                        </button>
-                    </div>
-
-                    {{-- Tombol Reset --}}
-                    <div class="col-md-2">
-                        <a href="{{ route('posyandu.index') }}" class="btn btn-sm btn-outline-danger w-100">
-                             <i class="fas fa-times me-1"></i> Reset
-                        </a>
+                        <form action="{{ route('posyandu.destroy', $item) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600">Hapus</button>
+                        </form>
                     </div>
                 </div>
-            </form>
+            @endforeach
         </div>
 
-        <div class="card-body p-0">
-            {{-- ================================================================= --}}
-            {{-- TABEL DATA POSYANDU --}}
-            {{-- ================================================================= --}}
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle mb-0">
-                    <thead class="table-light text-center">
-                        <tr>
-                            <th width="40px">No</th>
-                            <th>Nama Posyandu</th>
-                            <th>Alamat</th>
-                            <th width="50px">RT</th>
-                            <th width="50px">RW</th>
-                            <th width="150px">Kontak</th>
-                            <th width="100px">Media</th>
-                            <th width="120px">Aksi</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        @forelse($posyandu as $i => $p)
-                            <tr>
-                                <td class="text-center">{{ $posyandu->firstItem() + $i }}</td>
-                                <td>{{ $p->nama }}</td>
-                                <td>{{ $p->alamat }}</td>
-                                <td class="text-center">{{ $p->rt ?? '-' }}</td>
-                                <td class="text-center">{{ $p->rw ?? '-' }}</td>
-                                <td>{{ $p->kontak ?? '-' }}</td>
-
-                                <td class="text-center">
-                                    @if($p->media)
-                                        <a href="{{ $p->media }}" target="_blank" class="btn btn-link btn-sm p-0" title="Lihat Media">
-                                            Lihat <i class="fas fa-external-link-alt ms-1"></i>
-                                        </a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-
-                                <td class="text-center">
-                                    {{-- Button Group untuk Aksi --}}
-                                    <div class="btn-group btn-group-sm" role="group" aria-label="Aksi Posyandu">
-
-                                        <a href="{{ route('posyandu.show', $p->posyandu_id) }}"
-                                           class="btn btn-info text-white" title="Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-
-                                        <a href="{{ route('posyandu.edit', $p->posyandu_id) }}"
-                                           class="btn btn-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-
-                                        <form action="{{ route('posyandu.destroy', $p->posyandu_id) }}"
-                                              method="POST"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Yakin hapus data Posyandu {{ $p->nama }}?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger" title="Hapus">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">
-                                    <i class="fas fa-box-open me-2"></i> Tidak ada data Posyandu yang ditemukan.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        {{-- pagination --}}
+        <div class="mt-6">
+            {{ $posyandus->links() }}
         </div>
-    </div>
-
-    {{-- ================================================================= --}}
-    {{-- PAGINATION --}}
-    {{-- ================================================================= --}}
-    <div class="mt-3">
-        {{ $posyandu->links('pagination::bootstrap-5') }}
-    </div>
-
+    @endif
 </div>
 @endsection
