@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -18,42 +17,45 @@ class UserController extends Controller
         $users = User::when($search, function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%");
+                    ->orWhere('email', 'like', "%$search%");
             });
         })
-        ->when($filter, function ($query, $filter) {
-            if ($filter == 'gmail') {
-                $query->where('email', 'like', '%gmail.com');
-            } elseif ($filter == 'yahoo') {
-                $query->where('email', 'like', '%yahoo.com');
-            } elseif ($filter == 'outlook') {
-                $query->where('email', 'like', '%outlook.com');
-            }
-        })
-        ->orderBy('id', 'desc')
-        ->paginate(10)
-        ->withQueryString();
+            ->when($filter, function ($query, $filter) {
+                if ($filter == 'gmail') {
+                    $query->where('email', 'like', '%gmail.com');
+                } elseif ($filter == 'yahoo') {
+                    $query->where('email', 'like', '%yahoo.com');
+                } elseif ($filter == 'outlook') {
+                    $query->where('email', 'like', '%outlook.com');
+                }
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('guest/user.index', compact('users', 'search', 'filter'));
+        return view('pages.user.index', compact('users', 'search', 'filter'));
     }
 
     public function create()
     {
-        return view('guest/user.create');
+        return view('pages.user.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users',
             'password' => 'required|confirmed|min:6',
+            'role'     => 'required|string',
+
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'role'     => $request->role,
         ]);
 
         return redirect()->route('user.index')
@@ -62,23 +64,26 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('guest/user.edit', compact('user'));
+        return view('pages.user.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|confirmed|min:6',
+            'role'     => 'required|string',
         ]);
 
         $data = [
-            'name' => $request->name,
+            'name'  => $request->name,
             'email' => $request->email,
+            'role'  => $request->role,
         ];
 
-        if ($request->password) {
+        // Jika password diisi, update password baru
+        if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 

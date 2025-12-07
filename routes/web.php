@@ -6,36 +6,34 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WargaController;
 use App\Http\Controllers\PosyanduController;
 use App\Http\Controllers\KaderPosyanduController;
-use App\Http\Controllers\LayananPosyanduController;
 use App\Http\Controllers\JadwalPosyanduController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LayananPosyanduController;
 
-// ==========================
-// HALAMAN UTAMA
-// ==========================
-Route::get('/', [PosyanduController::class, 'index'])->name('home');
-
-// ==========================
 // LOGIN
-// ==========================
-Route::get('/login', [AuthController::class, 'index'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/', [AuthController::class, 'index'])->name('login.form');
+Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ==========================
-// RESOURCE ROUTES
-// ==========================
-Route::resource('layanan', LayananPosyanduController::class);
-Route::resource('user', UserController::class);
-Route::resource('warga', WargaController::class);
-Route::resource('posyandu', PosyanduController::class);
-Route::resource('kaderposyandu', KaderPosyanduController::class);
-Route::resource('jadwal', JadwalPosyanduController::class);
+// SEMUA YANG LOGIN
+Route::middleware(['checkislogin'])->group(function () {
 
+    // ADMIN ONLY
+    Route::resource('user', UserController::class)
+        ->middleware('checkrole:admin');
 
-// ==========================
-// HALAMAN GUEST
-// ==========================
-Route::get('/about', function () {
-    return view('guest.about.about');
-})->name('about');
+    Route::resource('posyandu', PosyanduController::class)
+        ->middleware('checkrole:admin,warga');
+
+    Route::resource('kaderposyandu', KaderPosyanduController::class)
+        ->middleware('checkrole:admin');
+
+    // ADMIN & KADER
+    Route::resource('layanan', LayananPosyanduController::class)
+        ->middleware('checkrole:admin,kader');
+
+    Route::resource('jadwal', JadwalPosyanduController::class)
+        ->middleware('checkrole:admin,kader');
+
+    Route::resource('warga', WargaController::class)
+        ->middleware('checkrole:admin,kader');
+});

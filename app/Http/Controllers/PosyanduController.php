@@ -1,16 +1,20 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\JadwalPosyandu;
 use App\Models\Media;
-use App\Models\Posyandu;
 use App\Models\Warga;
+use App\Models\Posyandu;
 use Illuminate\Http\Request;
+use App\Models\JadwalPosyandu;
+use Illuminate\Support\Facades\Auth;
 
 class PosyanduController extends Controller
 {
     public function index(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->withErrors('Silakan login terlebih dahulu!');
+        }
         // kolom yang boleh dicari
         $searchable = ['nama', 'alamat', 'rt', 'rw', 'kontak', 'media'];
 

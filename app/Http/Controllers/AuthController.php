@@ -1,9 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -20,30 +21,36 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        // Validasi
+        $request->validate([
+            'email'    => 'required|email',
             'password' => 'required',
         ], [
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Ambil user berdasarkan email
+        $user = User::whereEmail($request->email)->first();
 
-            $request->session()->regenerate();
+        if ($user && Hash::check($request->password, $user->password)) {
+            Auth::login($user);
 
-            return redirect()->intended(route('posyandu.index'))
+            session(['last_login' => now()]);
+
+            return redirect()->route('posyandu.index')
                 ->with('success', 'Login berhasil!');
         }
 
+        // Jika gagal
         return back()->withInput()->withErrors([
             'email' => 'Email atau Password salah.',
         ]);
     }
 
     /**
-     * Logout user.
+     * Logout users.
      */
     public function logout(Request $request)
     {
@@ -51,6 +58,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

@@ -1,4 +1,4 @@
-@extends('layouts.guest.app')
+@extends('layouts.app')
 
 @section('content')
     <!-- KONTEN UTAMA -->
@@ -50,6 +50,25 @@
                             class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out shadow-sm placeholder:text-gray-400"
                             placeholder="Contoh: grand@example.com" required>
                         @error('email')
+                            <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <!-- Role User -->
+                    <div class="mb-5">
+                        <label for="role" class="block text-gray-700 font-bold mb-2 text-sm">
+                            <i class="fas fa-user-tag mr-1 text-pink-500"></i> Role User
+                        </label>
+
+                        <select name="role" id="role"
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:ring-pink-500 focus:border-pink-500 transition duration-150 ease-in-out shadow-sm"
+                            required>
+                            <option value="">-- Pilih Role --</option>
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="kader" {{ old('role') == 'kader' ? 'selected' : '' }}>Kader</option>
+                            <option value="warga" {{ old('role') == 'warga' ? 'selected' : '' }}>Warga</option>
+                        </select>
+
+                        @error('role')
                             <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                         @enderror
                     </div>

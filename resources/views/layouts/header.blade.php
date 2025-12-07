@@ -40,18 +40,74 @@
                 class="hover:text-pink-200 transition duration-150">
                 <i class="fas fa-user mr-1"></i> Kader
             </a>
-            <a href="{{ route('about') }}" onclick="switchView('form'); return false;"
+            <a href="#" onclick="switchView('form'); return false;"
                 class="hover:text-pink-200 transition duration-150">
                 <i class="fas fa-info-circle mr-1"></i> Tentang Aplikasi
             </a>
 
             <span class="opacity-75 hidden md:inline">|</span>
-            <a href="{{ route('user.index') }}" class="hover:text-pink-200 transition duration-150 hidden md:inline">
-                <i class="fas fa-user mr-1"></i> User
-            </a>
+            {{-- USER DROPDOWN --}}
+            <div class="relative hidden md:block">
+                <button id="userDropdownBtn" class="hover:text-pink-200 transition duration-150 flex items-center">
+                    <i class="fas fa-user mr-1"></i> {{ Auth::user()->name ?? 'User' }}
+                    <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                </button>
+
+                {{-- Dropdown --}}
+                <div id="userDropdownMenu"
+                    class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded shadow-lg py-2 hidden z-50">
+
+                    {{-- Last Login --}}
+                    <div class="px-4 py-2 text-sm font-semibold text-gray-900">
+                        Last Login
+                    </div>
+                    <div class="px-4 pb-2 text-xs text-gray-600 border-b">
+                        {{ session('last_login') ?? 'Belum ada data' }}
+                    </div>
+
+                    {{-- Lihat Data User --}}
+                    <a href="{{ route('user.index') }}"
+                        class="block px-4 py-2 text-sm hover:bg-pink-50 hover:text-pink-600 transition">
+                        <i class="fas fa-users mr-2"></i>
+                        Daftar User
+                    </a>
+
+                    {{-- Logout --}}
+                    {{-- Penerapan Auth::check, jika user tidak login tidak bisa logout --}}
+                    @if(Auth::check())
+                    <form action="{{ route('logout') }}" method="POST" class="mt-1">
+                        @csrf
+                        <button type="submit"
+                            class="w-full text-left px-4 py-2 text-sm hover:bg-pink-50 hover:text-pink-600 transition">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            Logout
+                        </button>
+                    </form>
+                    @endif
+
+                </div>
+            </div>
+
+
+
         </div>
     </div>
 </nav>
 
 {{-- Jarak untuk konten di bawah navbar fixed --}}
 <div class="pt-16"></div>
+<script>
+    const btn = document.getElementById("userDropdownBtn");
+    const menu = document.getElementById("userDropdownMenu");
+
+    btn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+    });
+
+    // klik di luar area untuk menutup dropdown
+    document.addEventListener("click", (e) => {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.add("hidden");
+        }
+    });
+</script>
